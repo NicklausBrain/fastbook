@@ -40,14 +40,11 @@ popular browsers.
 """
 
 import os
-import os.path
 
 import cherrypy
 from cherrypy.lib import static
 
-from fastcore.all import *
 from fastai.vision.all import *
-#from PIL import Image
 
 localDir = os.path.dirname(__file__)
 absDir = os.path.join(os.getcwd(), localDir)
@@ -109,8 +106,14 @@ class FileDemo(object):
 
 tutconf = os.path.join(os.path.dirname(__file__), 'web.conf')
 
+# Create a WSGI-compliant application object for production servers
+app = cherrypy.Application(FileDemo(), '/', config=tutconf)
+
 if __name__ == '__main__':
-    # CherryPy always starts with app.root when trying to map request URIs
-    # to objects, so we need to mount a request handler root. A request
-    # to '/' will be mapped to HelloWorld().index().
-    cherrypy.quickstart(FileDemo(), config=tutconf)
+    # This block is for local testing.
+    # Azure will use the 'app' object directly with its own server (Gunicorn).
+    cherrypy.config.update({
+        'server.socket_host': '127.0.0.1',
+        'server.socket_port': 8080,
+    })
+    cherrypy.quickstart(app)
