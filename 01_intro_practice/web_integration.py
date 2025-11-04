@@ -104,16 +104,15 @@ class FileDemo(object):
         )
 
 
-tutconf = os.path.join(os.path.dirname(__file__), 'web.conf')
+#tutconf = os.path.join(os.path.dirname(__file__), 'web.conf')
 
 # Create a WSGI-compliant application object for production servers
-app = cherrypy.Application(FileDemo(), '/', config=tutconf)
+app = cherrypy.Application(FileDemo(), '/')
 
-if __name__ == '__main__':
-    # This block is for local testing.
-    # Azure will use the 'app' object directly with its own server (Gunicorn).
-    cherrypy.config.update({
-        'server.socket_host': '127.0.0.1',
+
+cherrypy.config.update({
+        'server.socket_host': '0.0.0.0',
         'server.socket_port': 8080,
     })
-    cherrypy.quickstart(app)
+
+cherrypy.quickstart(app.root, '/', app.config)
